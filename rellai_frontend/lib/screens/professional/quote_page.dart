@@ -4,6 +4,7 @@ import 'package:rellai_frontend/screens/professional/item_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rellai_frontend/services/api_service.dart';
 import 'package:rellai_frontend/screens/professional/item_page.dart';
+import 'package:rellai_frontend/screens/professional/complition_page.dart';
 
 class AddQuotePage extends StatefulWidget {
   final String quoteType;
@@ -133,6 +134,20 @@ class _AddQuotePageState extends State<AddQuotePage> {
                 });
               },
             ),
+          if (widget.quote?.id != null && widget.enabled == false)
+            IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ComplitionPage(
+                      quote: widget.quote!,
+                    ),
+                  ),
+                );
+              },
+            ),
           if (enabled && widget.quote?.id == null)
             IconButton(
               icon: const Icon(Icons.check),
@@ -212,13 +227,15 @@ class _AddQuotePageState extends State<AddQuotePage> {
                             : null,
                         onTap: () {
                           Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => AddItemPage(
-                                        item: item,
-                                        showEditButton: true,
-                                        enabled: false,
-                                      )));
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AddItemPage(
+                                item: item,
+                                showEditButton: true,
+                                enabled: false,
+                              ),
+                            ),
+                          );
                         },
                       ),
                     );

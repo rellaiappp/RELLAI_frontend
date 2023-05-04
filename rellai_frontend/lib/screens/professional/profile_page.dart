@@ -1,39 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:rellai_frontend/screens/professional/edit_profile_page.dart';
+import 'package:rellai_frontend/services/api_service.dart';
+import 'package:rellai_frontend/models/user.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
+  const ProfilePage({Key? key}) : super(key: key);
+
   @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  AppUser? user;
+
+  @override
+  void initState() {
+    super.initState();
+    ApiService().getUserInfo().then((data) {
+      if (data != null) {
+        setState(() {
+          user = data;
+          print(user!.name);
+        });
+      }
+    });
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profile'),
+        title: const Text('Profilo'),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           CircleAvatar(
             radius: 50,
-            backgroundImage: NetworkImage(
-                'https://cdn.dribbble.com/users/2878951/screenshots/14013747/media/603f0b853c409547dfa51cba996f375c.png?compress=1&resize=400x300'),
+            backgroundImage: NetworkImage(user?.profilePictureUrl ??
+                'https://www.cobdoglaps.sa.edu.au/wp-content/uploads/2017/11/placeholder-profile-sq.jpg'),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Text(
-            'Your Name',
+            user?.name ?? "Nome Cognome",
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                '@username',
+                user?.mail ?? "Email utente",
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                   color: Colors.grey,
@@ -41,14 +64,14 @@ class ProfilePage extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           OutlinedButton(
             onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => EditProfilePage(),
-                ),
-              );
+              // Navigator.of(context).push(
+              //   MaterialPageRoute(
+              //     builder: (context) => EditProfilePage(user: user!),
+              //   ),
+              // );
             },
             child: const Text('Modifica il profilo'),
           ),

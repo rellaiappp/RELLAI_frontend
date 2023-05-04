@@ -3,7 +3,7 @@ import '../../models/project.dart';
 import '../../services/api_service.dart';
 import 'project_details_page.dart';
 import 'create_project_page.dart';
-import 'package:rellai_frontend/models/user_model.dart';
+import 'package:rellai_frontend/models/user.dart';
 import 'package:rellai_frontend/widgets/ProjectCard.dart';
 
 class ProjectsPage extends StatefulWidget {

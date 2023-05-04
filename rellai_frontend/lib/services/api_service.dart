@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/project.dart';
-import '../models/user_model.dart';
+import '../models/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'auth.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -98,9 +98,11 @@ class ApiService {
     final response = await http
         .get(Uri.parse('$baseUrl/api/v1/users/data?id=$id'), headers: headers);
     if (response.statusCode == 200) {
+      print(response.body);
       final data = jsonDecode(response.body);
       final userJson = data['user'] as Map<String, dynamic>;
       final user = AppUser.fromJson(userJson);
+      print(user.name);
       return user;
     } else {
       throw Exception('Failed to load projects');
@@ -226,6 +228,54 @@ class ApiService {
     } else {
       return false;
       //throw Exception('Failed to send POST request: ${response.statusCode}');
+    }
+  }
+
+  Future<Quote> getQuote(String quoteId) async {
+    await dotenv.load();
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    String id = auth.currentUser!.uid;
+    String baseUrl = dotenv.env['BACKENDBASEURL']!;
+    String userToken = await getAccessToken();
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'bearer $userToken'
+    };
+    final response = await http.get(
+        Uri.parse('$baseUrl/api/v1/projects/quotes/$quoteId'),
+        headers: headers);
+
+    if (response.statusCode == 200) {
+      print(response.body);
+      final data = jsonDecode(response.body);
+      final quote = Quote.fromJson(data);
+      print('Quote ID: ${quote.id}');
+      return quote;
+    } else {
+      throw Exception('Failed to load quote');
+    }
+  }
+
+  Future<bool> createCompletionRequest(
+      CompletionRequest completionRequest) async {
+    await dotenv.load();
+    String baseUrl = dotenv.env['BACKENDBASEURL']!;
+    final url = Uri.parse(
+        '$baseUrl/api/v1/projects/completion_request'); // Modifica l'endpoint qui
+    String userToken = await getAccessToken();
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'bearer $userToken'
+    };
+    final body = json.encode(completionRequest.toJson());
+    print(body);
+    final response = await http.post(url, headers: headers, body: body);
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      print("Failed to send POST request: ${response.statusCode}");
+      print("Response body: ${response.body}");
+      return false;
     }
   }
 }

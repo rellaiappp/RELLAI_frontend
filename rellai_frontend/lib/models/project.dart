@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 class Project {
   final String id;
   final int timestamp;
@@ -140,7 +142,7 @@ class Quote {
   final String quoteValidity;
   final String quoteStatus;
   final bool accepted;
-  final List<Item>? items;
+  List<Item>? items;
   final double? totalPrice;
 
   Quote({
@@ -206,7 +208,7 @@ class Item {
   final String itemUnit;
   final double itemNumber;
   final double itemUnitPrice;
-  final double itemCompletion;
+  double itemCompletion;
 
   Item({
     this.id,
@@ -248,5 +250,62 @@ class Item {
         'item_number': itemNumber,
         'item_unit_price': itemUnitPrice,
         'item_completion': itemCompletion,
+      };
+}
+
+class CompletionRequest {
+  String? id;
+  int? timestamp;
+  String creatorId;
+  Quote
+      quote; // Sostituisci 'Quote' con il tuo modello Dart per la classe 'Quote'
+  String quoteId;
+  String projectId;
+  String note;
+  List<String> images;
+  bool accepted;
+  bool rejected;
+
+  CompletionRequest({
+    this.id,
+    this.timestamp,
+    required this.creatorId,
+    required this.quote,
+    required this.quoteId,
+    required this.projectId,
+    required this.note,
+    required this.images,
+    required this.accepted,
+    required this.rejected,
+  });
+
+  factory CompletionRequest.fromJson(Map<String, dynamic> json) {
+    return CompletionRequest(
+      id: json['id'],
+      timestamp: json['timestamp'],
+      creatorId: json['creator_id'],
+      quote: Quote.fromJson(json[
+          'quote']), // Sostituisci 'Quote' con il tuo modello Dart per la classe 'Quote'
+      quoteId: json['quote_id'],
+      projectId: json['project_id'],
+      note: json['note'],
+      images: List<String>.from(json['images'].map((x) => x)),
+      accepted: json['accepted'],
+      rejected: json['rejected'],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'timestamp': timestamp,
+        'creator_id': creatorId,
+        'quote': quote
+            .toJson(), // Sostituisci 'Quote' con il tuo modello Dart per la classe 'Quote'
+        'quote_id': quoteId,
+        'project_id': projectId,
+        'note': note,
+        'images': List<dynamic>.from(images.map((x) => x)),
+        'accepted': accepted,
+        'rejected': rejected,
       };
 }
