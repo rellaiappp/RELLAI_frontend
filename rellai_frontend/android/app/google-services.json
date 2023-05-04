@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "501583719435",
+    "project_id": "rellai",
+    "storage_bucket": "rellai.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:501583719435:android:e770ef7d6cbff5c53f2b0e",
+        "android_client_info": {
+          "package_name": "com.example.rellai_frontend"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "501583719435-f8nnoqr0qrrho5bjc91ckt9sf5hqlmls.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAjqYWES-uAkLYeUcpYBIkeHOG2SaFUxqs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "501583719435-f8nnoqr0qrrho5bjc91ckt9sf5hqlmls.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
