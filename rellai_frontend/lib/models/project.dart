@@ -1,311 +1,146 @@
-import 'dart:typed_data';
+import 'package:rellai_frontend/models/quote.dart';
 
 class Project {
-  final String id;
-  final int timestamp;
-  final Client client;
-  final String creatorId;
-  final ProjectInfo projectInfo;
-  final String? clientMail;
-  final String? role;
-  final Creator? creator;
-  final String? invitationId;
-  final double? total;
-  final List<Quote>? quotations;
-  final List<Quote>? variationOrders;
-  final List<Quote>? changeOrders;
+  String? id;
+  Detail detail;
+  Site site;
+  String? role;
+  String? creatorId;
+  DateTime? dateCreated;
+  Client client;
+  String? accessLevel;
+  List<Quotation> quotes; // List of Quotation objects
 
-  Project(
-      {required this.id,
-      required this.timestamp,
-      required this.client,
-      required this.creatorId,
-      required this.projectInfo,
-      this.role,
-      this.creator,
-      this.clientMail,
-      this.invitationId,
-      this.quotations,
-      this.variationOrders,
-      this.total,
-      this.changeOrders});
+  Project({
+    this.id,
+    required this.client,
+    required this.detail,
+    required this.site,
+    this.creatorId,
+    this.dateCreated,
+    this.accessLevel,
+    this.quotes = const [],
+  });
 
-  factory Project.fromJson(Map<String, dynamic> json) {
-    return Project(
-      id: json['id'] ?? '',
-      timestamp: json['timestamp'] ?? 0,
-      client: Client.fromJson(json['client'] ?? {}),
-      creatorId: json['creator_id'] ?? '',
-      projectInfo: ProjectInfo.fromJson(json['general_info'] ?? {}),
-      clientMail: json['client_mail'],
-      role: json['role'],
-      total: double.tryParse(json['total'].toString()),
-      creator: json['creator_info'] != null
-          ? Creator.fromJson(json['creator_info'])
-          : null,
-      invitationId: json['invitation_id'],
-      quotations: json['quotations'] != null
-          ? (json['quotations'] as List<dynamic>)
-              .map((quotationJson) => Quote.fromJson(quotationJson))
-              .toList()
-          : null,
-      variationOrders: json['variation_orders'] != null
-          ? (json['variation_orders'] as List<dynamic>)
-              .map((quotationJson) => Quote.fromJson(quotationJson))
-              .toList()
-          : null,
-      changeOrders: json['change_orders'] != null
-          ? (json['change_orders'] as List<dynamic>)
-              .map((quotationJson) => Quote.fromJson(quotationJson))
-              .toList()
-          : null,
-    );
+  Project.fromJson(Map<String, dynamic> json)
+      : id = json['_id'],
+        client = Client.fromJson(json['client'] ?? {}),
+        detail = Detail.fromJson(json['detail'] ?? {}),
+        site = Site.fromJson(json['site'] ?? {}),
+        creatorId = json['creatorId'] ?? '',
+        dateCreated =
+            DateTime.parse(json['dateCreated'] ?? DateTime.now().toString()),
+        accessLevel = json['accessLevel'] ?? '',
+        quotes = (json['quotes'] as List<dynamic>? ?? [])
+            .map((item) => Quotation.fromJson(item))
+            .toList();
+
+  Map<String, dynamic> toJson() {
+    return {
+      'client': client.toJson(),
+      'detail': detail.toJson(),
+      'site': site.toJson(),
+      'creatorId': creatorId,
+      'accessLevel': accessLevel,
+      'quotes': quotes.map((item) => item.toJson()).toList(),
+    };
   }
 }
 
-class Creator {
-  final String id;
-  final String mail;
-  final String name;
-  final String role;
+class Detail {
+  String projectType;
+  String name;
+  String description;
 
-  Creator({
-    required this.id,
-    required this.mail,
-    required this.name,
-    required this.role,
-  });
+  Detail(
+      {required this.projectType,
+      required this.name,
+      required this.description});
 
-  factory Creator.fromJson(Map<String, dynamic> json) {
-    return Creator(
-      id: json['auth_id'],
-      mail: json['mail'],
-      name: json['name'],
-      role: json['role'],
+  Detail.fromJson(Map<String, dynamic> json)
+      : projectType = json['projectType'] ?? '',
+        name = json['name'] ?? '',
+        description = json['description'] ?? '';
+
+  Map<String, dynamic> toJson() {
+    return {
+      'projectType': projectType,
+      'name': name,
+      'description': description,
+    };
+  }
+}
+
+class Site {
+  String siteType;
+  int floor; // change this to int if floor should be an integer
+  Address address;
+
+  Site({required this.siteType, required this.floor, required this.address});
+
+  factory Site.fromJson(Map<String, dynamic> json) {
+    return Site(
+      siteType: json['siteType'],
+      floor: int.tryParse(json['floor'].toString()) ?? 0,
+      address: Address.fromJson(json['address']),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'siteType': siteType,
+      'floor': floor,
+      'address': address.toJson(),
+    };
   }
 }
 
 class Client {
-  final String nome;
-  final String email;
-  final String numeroCellulare;
+  String fullName;
+  String email;
 
-  Client(
-      {required this.nome, required this.email, required this.numeroCellulare});
+  Client({required this.fullName, required this.email});
 
-  factory Client.fromJson(Map<String, dynamic> json) {
-    return Client(
-      nome: json['nome'],
-      email: json['email'],
-      numeroCellulare: json['numero_cellulare'],
-    );
+  Client.fromJson(Map<String, dynamic> json)
+      : fullName = json['fullName'] ?? '',
+        email = json['email'] ?? '';
+
+  Map<String, dynamic> toJson() {
+    return {
+      'fullName': fullName,
+      'email': email,
+    };
   }
 }
 
-class ProjectInfo {
-  final String projectName;
-  final String siteType;
-  final double buildingAge;
-  final double siteSurface;
-  final String projectType;
+class Address {
+  String street;
+  String city;
+  String region;
+  String state;
+  String zipCode;
 
-  ProjectInfo({
-    required this.projectName,
-    required this.siteType,
-    required this.buildingAge,
-    required this.siteSurface,
-    required this.projectType,
-  });
+  Address(
+      {required this.street,
+      required this.city,
+      required this.region,
+      required this.state,
+      required this.zipCode});
 
-  factory ProjectInfo.fromJson(Map<String, dynamic> json) {
-    return ProjectInfo(
-      projectName: json['nome_progetto'],
-      siteType: json['tipologia_abitazione'],
-      buildingAge:
-          double.tryParse(json['eta_edificio']?.toString() ?? '0') ?? 0.0,
-      siteSurface:
-          double.tryParse(json['metri_quadrati']?.toString() ?? '0') ?? 0.0,
-      projectType: json['tipo_intervento'],
-    );
+  Address.fromJson(Map<String, dynamic> json)
+      : street = json['street'] ?? '',
+        city = json['city'] ?? '',
+        region = json['region'] ?? '',
+        state = json['state'] ?? '',
+        zipCode = json['zipCode'] ?? '';
+
+  Map<String, dynamic> toJson() {
+    return {
+      'street': street,
+      'city': city,
+      'region': region,
+      'state': state,
+      'zipCode': zipCode,
+    };
   }
-}
-
-class Quote {
-  final String? id;
-  final int? timestamp;
-  final String creatorId;
-  final String quoteDescription;
-  final String projectId;
-  final String quoteName;
-  final String quoteType;
-  final String quoteValidity;
-  final String quoteStatus;
-  final bool accepted;
-  List<Item>? items;
-  final double? totalPrice;
-
-  Quote({
-    this.id,
-    this.timestamp,
-    required this.creatorId,
-    required this.quoteDescription,
-    required this.projectId,
-    required this.quoteName,
-    required this.quoteType,
-    required this.quoteValidity,
-    required this.quoteStatus,
-    required this.accepted,
-    this.items,
-    this.totalPrice,
-  });
-
-  factory Quote.fromJson(Map<String, dynamic> json) {
-    List<Item>? itemList = [];
-    if (json['items'] != null) {
-      itemList =
-          (json['items'] as List).map((item) => Item.fromJson(item)).toList();
-    }
-    return Quote(
-      id: json['id'],
-      timestamp: json['timestamp'],
-      creatorId: json['creator_id'],
-      quoteDescription: json['quote_description'],
-      projectId: json['project_id'],
-      quoteName: json['quote_name'],
-      quoteType: json['quote_type'],
-      quoteValidity: json['quote_validity'],
-      quoteStatus: json['quote_status'],
-      accepted: json['accepted'],
-      totalPrice:
-          double.tryParse(json['total_price']?.toString() ?? '0') ?? 0.0,
-      items: itemList,
-    );
-  }
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'timestamp': timestamp,
-        'creator_id': creatorId,
-        'quote_description': quoteDescription,
-        'project_id': projectId,
-        'quote_name': quoteName,
-        'quote_type': quoteType,
-        'quote_validity': quoteValidity,
-        'quote_status': quoteStatus,
-        'accepted': accepted,
-        'items': items?.map((item) => item.toJson()).toList(),
-        'total_price': totalPrice,
-      };
-}
-
-class Item {
-  final String? id;
-  final int? timestamp;
-  final String? quoteId;
-  final String itemName;
-  final String itemType;
-  final String itemDescription;
-  final String itemUnit;
-  final double itemNumber;
-  final double itemUnitPrice;
-  double itemCompletion;
-
-  Item({
-    this.id,
-    this.timestamp,
-    this.quoteId,
-    required this.itemName,
-    required this.itemType,
-    required this.itemDescription,
-    required this.itemUnit,
-    required this.itemNumber,
-    required this.itemUnitPrice,
-    required this.itemCompletion,
-  });
-
-  factory Item.fromJson(Map<String, dynamic> json) {
-    return Item(
-      id: json['id'],
-      timestamp: json['timestamp'],
-      quoteId: json['quote_id'],
-      itemName: json['item_name'],
-      itemType: json['item_type'],
-      itemDescription: json['item_description'],
-      itemUnit: json['item_unit'].toString(),
-      itemNumber: double.tryParse(json['item_number'].toString()) ?? 0.0,
-      itemUnitPrice: double.tryParse(json['item_unit_price'].toString()) ?? 0.0,
-      itemCompletion:
-          double.tryParse(json['item_completion']?.toString() ?? '0') ?? 0.0,
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'timestamp': timestamp,
-        'quote_id': quoteId,
-        'item_name': itemName,
-        'item_type': itemType,
-        'item_description': itemDescription,
-        'item_unit': itemUnit,
-        'item_number': itemNumber,
-        'item_unit_price': itemUnitPrice,
-        'item_completion': itemCompletion,
-      };
-}
-
-class CompletionRequest {
-  String? id;
-  int? timestamp;
-  String creatorId;
-  Quote
-      quote; // Sostituisci 'Quote' con il tuo modello Dart per la classe 'Quote'
-  String quoteId;
-  String projectId;
-  String note;
-  List<String> images;
-  bool accepted;
-  bool rejected;
-
-  CompletionRequest({
-    this.id,
-    this.timestamp,
-    required this.creatorId,
-    required this.quote,
-    required this.quoteId,
-    required this.projectId,
-    required this.note,
-    required this.images,
-    required this.accepted,
-    required this.rejected,
-  });
-
-  factory CompletionRequest.fromJson(Map<String, dynamic> json) {
-    return CompletionRequest(
-      id: json['id'],
-      timestamp: json['timestamp'],
-      creatorId: json['creator_id'],
-      quote: Quote.fromJson(json[
-          'quote']), // Sostituisci 'Quote' con il tuo modello Dart per la classe 'Quote'
-      quoteId: json['quote_id'],
-      projectId: json['project_id'],
-      note: json['note'],
-      images: List<String>.from(json['images'].map((x) => x)),
-      accepted: json['accepted'],
-      rejected: json['rejected'],
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'timestamp': timestamp,
-        'creator_id': creatorId,
-        'quote': quote
-            .toJson(), // Sostituisci 'Quote' con il tuo modello Dart per la classe 'Quote'
-        'quote_id': quoteId,
-        'project_id': projectId,
-        'note': note,
-        'images': List<dynamic>.from(images.map((x) => x)),
-        'accepted': accepted,
-        'rejected': rejected,
-      };
 }

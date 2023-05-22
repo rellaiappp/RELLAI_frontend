@@ -1,13 +1,20 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:rellai_frontend/models/user.dart';
-import 'package:rellai_frontend/services/api_service.dart';
+import 'package:rellai_frontend/services/api/user.dart';
 
-class UserModel extends ChangeNotifier {
-  AppUser? user;
+class UserProvider with ChangeNotifier {
+  AppUser? _currentUser;
 
-  void load(String id) async {
-    user = await ApiService().getUserInfo();
-    // This call tells the widgets that are listening to this model to rebuild.
+  AppUser? get user => _currentUser;
+
+  Future<bool> updateUser() async {
+    _currentUser = await UserCRUD().getCurrentUser();
+    notifyListeners();
+    return true;
+  }
+
+  void clearAll() {
+    _currentUser = null;
     notifyListeners();
   }
 }

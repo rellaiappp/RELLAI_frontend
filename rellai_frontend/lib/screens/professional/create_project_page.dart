@@ -1,218 +1,269 @@
 import 'package:flutter/material.dart';
 import 'package:rellai_frontend/screens/professional/routing_page.dart';
-import '../../services/api_service.dart';
-import '../../services/auth.dart';
+import 'package:rellai_frontend/models/project.dart';
+import 'package:rellai_frontend/services/api/project.dart';
 
 class NewProjectPage extends StatefulWidget {
+  const NewProjectPage({Key? key}) : super(key: key);
+
   @override
-  _NewProjectPageState createState() => _NewProjectPageState();
+  State<NewProjectPage> createState() => _NewProjectPageState();
 }
 
 class _NewProjectPageState extends State<NewProjectPage> {
   final _formKey = GlobalKey<FormState>();
 
-  String _nomeProgetto = '';
-  String _tipologiaAbitazione = '';
-  String _etaEdificio = '';
-  String _metriQuadrati = '';
-  String _tipoIntervento = '';
-  String _nome = '';
-  String _email = '';
-  String _numeroCellulare = '';
+  String _projectType = '';
+  String _projectName = '';
+
+  String _siteType = '';
+  String _constructionYear = '';
+  String _siteSurface = '';
+  String _siteFloor = '';
+  String _siteAddress = '';
+  String _siteCity = '';
+  String _siteRegion = '';
+  String _siteZip = '';
+
+  String _clientName = '';
+  String _clientEmail = '';
 
   Future<bool> createProject() async {
-    Map<String, String> site = {
-      'nome_progetto': _nomeProgetto,
-      'tipologia_abitazione': _tipologiaAbitazione,
-      'eta_edificio': _etaEdificio,
-      'metri_quadrati': _metriQuadrati,
-      'tipo_intervento': _tipoIntervento,
-    };
-    Map<String, String> homeowner = {
-      'nome': _nome,
-      'email': _email,
-      'numero_cellulare': _numeroCellulare,
-    };
-
-    bool result = await ApiService().createProject(site, homeowner);
-    return result;
+    Client client = Client(fullName: _clientName, email: _clientEmail);
+    Detail detail =
+        Detail(projectType: _projectType, name: _projectName, description: "");
+    Address address = Address(
+      street: _siteAddress,
+      city: _siteCity,
+      region: _siteRegion,
+      state: "Italy",
+      zipCode: _siteZip,
+    );
+    Site site = Site(
+        siteType: _siteType,
+        floor: int.parse(_constructionYear),
+        address: address);
+    Project project = Project(client: client, detail: detail, site: site);
+    ProjectCRUD().createProject(project);
+    return true;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text('Inserimento dati progetto')),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Inserimento dati progetto',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  TextFormField(
-                    decoration:
-                        const InputDecoration(labelText: 'Nome progetto'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Inserisci il nome del progetto';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) => _nomeProgetto = value!,
-                  ),
-                  DropdownButtonFormField(
-                    decoration: const InputDecoration(
-                        labelText: 'Tipologia abitazione'),
-                    items: const [
-                      DropdownMenuItem(
-                        value: 'appartamento',
-                        child: Text('Appartamento'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'casa unifamiliare',
-                        child: Text('Casa unifamiliare'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'altro',
-                        child: Text('Altro'),
-                      ),
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        _tipologiaAbitazione = value.toString();
-                      });
-                    },
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Seleziona la tipologia abitazione';
-                      }
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    decoration:
-                        const InputDecoration(labelText: 'Età edificio'),
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Inserisci l\'età dell\'edificio';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) => _etaEdificio = value!,
-                  ),
-                  TextFormField(
-                    decoration:
-                        const InputDecoration(labelText: 'Metri quadrati'),
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Inserisci i metri quadrati';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) => _metriQuadrati = value!,
-                  ),
-                  DropdownButtonFormField(
-                    decoration:
-                        const InputDecoration(labelText: 'Tipo di intervento'),
-                    items: const [
-                      DropdownMenuItem(
-                        value: 'sostituzione impianti',
-                        child: Text('Sostituzione impianti'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'adeguamento energetico',
-                        child: Text('Adeguamento energetico'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'altro',
-                        child: Text('Altro'),
-                      ),
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        _tipoIntervento = value.toString();
-                      });
-                    },
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Seleziona il tipo di intervento';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 24),
-                  const Text('Dati committente',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  TextFormField(
-                    decoration: const InputDecoration(labelText: 'Nome'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Inserisci il nome';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) => _nome = value!,
-                  ),
-                  TextFormField(
-                    decoration: const InputDecoration(labelText: 'Email'),
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Inserisci l\'email';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) => _email = value!,
-                  ),
-                  TextFormField(
-                    decoration:
-                        const InputDecoration(labelText: 'Numero di cellulare'),
-                    keyboardType: TextInputType.phone,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Inserisci il numero di cellulare';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) => _numeroCellulare = value!,
-                  ),
-                ],
-              ),
+      appBar: AppBar(
+        title: const Text(
+          'Inserimento dati progetto',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Informazioni generali',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                buildDropdownFormField(
+                  'Tipo di intervento',
+                  [
+                    'Sostituzione impianti',
+                    'Adeguamento energetico',
+                    'Altro',
+                  ],
+                  (value) => _projectType = value!,
+                ),
+                buildFormInputField(
+                  'Nome progetto',
+                  TextInputType.text,
+                  (value) => _projectName = value!,
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  'Dettagli sito',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                buildDropdownFormField(
+                  'Tipologia abitazione',
+                  [
+                    'Appartamento',
+                    'Casa unifamiliare',
+                    'Altro',
+                  ],
+                  (value) => _siteType = value!,
+                ),
+                buildFormInputField(
+                  'Anno costruzione edificio',
+                  TextInputType.number,
+                  (value) => _constructionYear = value!,
+                ),
+                buildFormInputField(
+                  'Superficie',
+                  TextInputType.number,
+                  (value) => _siteSurface = value!,
+                ),
+                buildFormInputField(
+                  'Piano',
+                  TextInputType.number,
+                  (value) => _siteFloor = value!,
+                ),
+                buildFormInputField(
+                  'Indirizzo',
+                  TextInputType.text,
+                  (value) => _siteAddress = value!,
+                ),
+                buildFormInputField(
+                  'Città',
+                  TextInputType.text,
+                  (value) => _siteCity = value!,
+                ),
+                buildFormInputField(
+                  'Provincia',
+                  TextInputType.text,
+                  (value) => _siteRegion = value!,
+                ),
+                buildFormInputField(
+                  'CAP',
+                  TextInputType.text,
+                  (value) => _siteZip = value!,
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  'Dati committente',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 16),
+                buildFormInputField(
+                  'Nome',
+                  TextInputType.text,
+                  (value) => _clientName = value!,
+                ),
+                buildFormInputField(
+                  'Email',
+                  TextInputType.emailAddress,
+                  (value) => _clientEmail = value!,
+                ),
+                SizedBox(height: 24),
+              ],
             ),
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            if (_formKey.currentState!.validate()) {
-              _formKey.currentState!.save();
-              print(_nomeProgetto);
-              bool isSuccess = await createProject();
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          if (_formKey.currentState!.validate()) {
+            _formKey.currentState!.save();
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (BuildContext context) {
+                return FutureBuilder<bool>(
+                  future: createProject(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const AlertDialog(
+                        content: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CircularProgressIndicator(),
+                            SizedBox(width: 20),
+                            Text('Creazione del progetto...'),
+                          ],
+                        ),
+                      );
+                    } else {
+                      if (snapshot.hasError ||
+                          !snapshot.hasData ||
+                          !snapshot.data!) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                                'Errore durante la creazione del progetto'),
+                          ),
+                        );
+                      } else {
+                        WidgetsBinding.instance!.addPostFrameCallback((_) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const MainScreen()),
+                          );
+                        });
+                      }
 
-              if (isSuccess) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => MainScreen()),
+                      return Container(); // Empty container to close the dialog
+                    }
+                  },
                 );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Errore durante la creazione del progetto'),
-                  ),
-                );
-              }
-              // Aggiungi la tua funzione per inviare i dati tramite POST request
-            }
+              },
+            );
+          }
+        },
+        child: Icon(Icons.check),
+      ),
+    );
+  }
 
-            // Aggiungi la tua funzione per inviare i dati tramite POST request
-          },
-          child: Icon(Icons.check),
-        ));
+  Widget buildFormInputField(
+    String labelText,
+    TextInputType keyboardType,
+    Function(String?) onSaved,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: TextFormField(
+        decoration: InputDecoration(
+          labelText: labelText,
+          border: OutlineInputBorder(),
+        ),
+        keyboardType: keyboardType,
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Inserisci $labelText';
+          }
+          return null;
+        },
+        onSaved: onSaved,
+      ),
+    );
+  }
+
+  Widget buildDropdownFormField(
+    String labelText,
+    List<String> items,
+    Function(String?) onChanged,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: DropdownButtonFormField(
+        decoration: InputDecoration(
+          labelText: labelText,
+          border: OutlineInputBorder(),
+        ),
+        items: items.map((item) {
+          return DropdownMenuItem(
+            value: item,
+            child: Text(item),
+          );
+        }).toList(),
+        onChanged: onChanged,
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Seleziona $labelText';
+          }
+          return null;
+        },
+      ),
+    );
   }
 }

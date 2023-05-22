@@ -1,46 +1,85 @@
 import 'package:flutter/material.dart';
-import 'package:rellai_frontend/models/project.dart';
+import 'package:rellai_frontend/models/item.dart';
 
 class ItemCard extends StatelessWidget {
   final Item item;
+  final bool enabled;
+  final VoidCallback? onTap;
+  final Color? cardColor;
 
-  const ItemCard({super.key, required this.item});
+  const ItemCard({
+    Key? key,
+    required this.item,
+    this.enabled = true,
+    this.onTap,
+    this.cardColor,
+  }) : super(key: key);
+
+  double computeItemTotal(Item item) {
+    return item.subItems.fold(
+        0, (total, subItem) => total + subItem.unitPrice * subItem.unitNumber);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(item.itemName,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            Text(item.itemDescription),
-            const SizedBox(height: 8),
-            TextField(
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Inserisci valore',
-                border: OutlineInputBorder(),
+    return InkWell(
+      onTap: onTap,
+      child: Card(
+        color: cardColor ?? Theme.of(context).cardColor,
+        elevation: 4,
+        margin: const EdgeInsets.symmetric(vertical: 3, horizontal: 0),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.name,
+                          style: Theme.of(context).textTheme.titleLarge,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          "${item.subItems.length} lavorazioni",
+                          style: Theme.of(context).textTheme.bodyMedium,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      const Text(
+                        'Totale',
+                        style: TextStyle(
+                          fontSize: 14,
+                        ),
+                      ),
+                      Text(
+                        '\€${computeItemTotal(item).toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 19,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  )
+                ],
               ),
-              onChanged: (value) {
-                // Gestisci il cambiamento del valore dell'input qui
-              },
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
-  }
-}
-
-class MyWidget extends StatelessWidget {
-  const MyWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
   }
 }

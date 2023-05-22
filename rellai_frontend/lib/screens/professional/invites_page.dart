@@ -1,109 +1,63 @@
-import 'create_project_page.dart';
 import 'package:flutter/material.dart';
-import '../../models/project.dart';
-import '../../services/api_service.dart';
+import 'package:rellai_frontend/models/invite.dart';
+import 'package:rellai_frontend/services/api/project.dart';
+import 'package:rellai_frontend/widgets/invite_card.dart';
+import 'package:provider/provider.dart';
+import 'package:rellai_frontend/providers/project_provider.dart';
 
 class InvitesPage extends StatefulWidget {
+  const InvitesPage({super.key});
+
   @override
   State<InvitesPage> createState() => _InvitesPageState();
 }
 
 class _InvitesPageState extends State<InvitesPage> {
-  late Future<List<Project>> _invites;
-
   @override
   void initState() {
     super.initState();
-    _invites = ApiService().getUserInvites();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Call your function here
-    _invites = ApiService().getUserInvites();
-  }
-
-  Future<void> _refreshProjects() async {
-    setState(() {
-      _invites = ApiService().getUserInvites();
-    });
-  }
-
-  void reloadScreen() {
-    setState(() {
-      _invites = ApiService().getUserInvites();
-    });
+    final projectProvider =
+        Provider.of<ProjectProvider>(context, listen: false);
+    projectProvider.updateInvites();
   }
 
   @override
   Widget build(BuildContext context) {
+    final projectProvider = Provider.of<ProjectProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Inviti'),
         automaticallyImplyLeading: false,
       ),
       body: Center(
-        child: FutureBuilder(
-          future: _invites,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator();
-            } else if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
-            } else {
-              return RefreshIndicator(
-                onRefresh: _refreshProjects,
-                child: ListView.builder(
-                  itemCount: snapshot
-                      .data!.length, // Set the number of items in the list
-                  itemBuilder: (BuildContext context, int index) {
-                    // Build a Card widget for each item in the list
-                    return Card(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          ListTile(
-                            title: Text(
-                                snapshot.data![index].projectInfo.projectName),
-                            subtitle: Text(snapshot.data![index].id),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: <Widget>[
-                              TextButton(
-                                child: const Text('Accetta'),
-                                onPressed: () {
-                                  ApiService()
-                                      .acceptInvite(
-                                          snapshot.data![index].invitationId ??
-                                              'No id')
-                                      .then((value) => reloadScreen());
-                                },
-                              ),
-                              const SizedBox(width: 8),
-                              TextButton(
-                                child: const Text('Rifiuta'),
-                                onPressed: () {
-                                  ApiService()
-                                      .acceptInvite(
-                                          snapshot.data![index].invitationId ??
-                                              'No id')
-                                      .then((value) => reloadScreen());
-                                },
-                              ),
-                              const SizedBox(width: 8),
-                            ],
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+        child: projectProvider.invites == null
+            ? const CircularProgressIndicator()
+            : RefreshIndicator(
+                onRefresh: projectProvider.updateInvites,
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  child: ListView.builder(
+                    itemCount: projectProvider.invites!.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final invite = projectProvider.invites![index] as Invite;
+                      return InviteCard(
+                        invite: invite,
+                        onAccept: () async {
+                          await ProjectCRUD()
+                              .updateInvitation(invite.id, accepted: true);
+                          projectProvider.updateInvites();
+                        },
+                        onReject: () async {
+                          await ProjectCRUD()
+                              .updateInvitation(invite.id, rejected: true);
+                          projectProvider.updateInvites();
+                        },
+                      );
+                    },
+                  ),
                 ),
-              );
-            }
-          },
-        ),
+              ),
       ),
     );
   }

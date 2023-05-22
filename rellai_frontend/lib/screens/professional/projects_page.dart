@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../models/project.dart';
-import '../../services/api_service.dart';
-import 'project_details_page.dart';
-import 'create_project_page.dart';
-import 'package:rellai_frontend/models/user.dart';
+import 'package:flutter/services.dart';
 import 'package:rellai_frontend/widgets/ProjectCard.dart';
+import 'create_project_page.dart';
+import 'project_details_page.dart';
+import 'package:provider/provider.dart';
+import 'package:rellai_frontend/providers/project_provider.dart';
+import 'package:rellai_frontend/providers/user_provider.dart';
 
 class ProjectsPage extends StatefulWidget {
   const ProjectsPage({Key? key}) : super(key: key);
@@ -13,80 +14,42 @@ class ProjectsPage extends StatefulWidget {
 }
 
 class _ProjectsPageState extends State<ProjectsPage> {
-  late Future<List<Project>> _projects;
-  bool _isHomeOwner = true;
+  final bool _isHomeOwner = true;
 
   @override
   void initState() {
     super.initState();
-    ApiService().getUserInfo().then((AppUser value) {
-      setState(() {
-        if (value.role == 'homeowner') {
-          _isHomeOwner = true;
-        } else {
-          _isHomeOwner = false;
-        }
-      });
-    });
-    _projects = _fetchProjects();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _projects = _fetchProjects();
-  }
-
-  Future<List<Project>> _fetchProjects() async {
-    return ApiService().fetchProjects();
-  }
-
-  Future<void> _refreshProjects() async {
-    setState(() {
-      _projects = _fetchProjects();
-    });
+    final projectProvider =
+        Provider.of<ProjectProvider>(context, listen: false);
+    projectProvider.updateProjects();
   }
 
   @override
   Widget build(BuildContext context) {
+    final projectProvider = Provider.of<ProjectProvider>(context);
+    final userProvider = Provider.of<UserProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Projects'),
+        title: const Text('Progetti'),
         automaticallyImplyLeading: false,
-        actions: [
-          if (!_isHomeOwner)
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => NewProjectPage()),
-                );
-              },
-              child: const Text('Crea'),
-            )
-        ],
       ),
       body: Center(
-        child: Container(
-          padding: const EdgeInsets.all(10.0),
-          child: FutureBuilder<List<Project>>(
-            future: _projects,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const CircularProgressIndicator();
-              } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              } else {
-                return RefreshIndicator(
-                  onRefresh: _refreshProjects,
+        child: projectProvider.projects == null
+            ? const CircularProgressIndicator()
+            : RefreshIndicator(
+                onRefresh: projectProvider.updateProjects,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: ListView.builder(
-                    itemCount: snapshot.data!.length,
+                    itemCount: projectProvider.projects!.length,
                     itemBuilder: (BuildContext context, int index) {
-                      final project = snapshot.data![index];
+                      final project = projectProvider.projects![index];
                       return ProjectCard(
                         project: project,
                         isHomeOwner: _isHomeOwner,
                         onTap: () {
+                          HapticFeedback.mediumImpact();
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -99,12 +62,20 @@ class _ProjectsPageState extends State<ProjectsPage> {
                       );
                     },
                   ),
-                );
-              }
-            },
-          ),
-        ),
+                ),
+              ),
       ),
+      floatingActionButton: (userProvider.user?.role != "homeowner")
+          ? FloatingActionButton.extended(
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const NewProjectPage()));
+              },
+              label: const Text('Nuovo'),
+              icon: const Icon(Icons.edit))
+          : Container(),
     );
   }
 }

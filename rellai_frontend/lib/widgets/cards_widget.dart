@@ -37,7 +37,7 @@ class ProjectCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             const Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: EdgeInsets.all(0.0),
               child: Text(
                 "Name",
                 style: TextStyle(
@@ -47,7 +47,7 @@ class ProjectCard extends StatelessWidget {
               ),
             ),
             const Padding(
-              padding: EdgeInsets.all(8.0),
+              padding: EdgeInsets.all(0.0),
               child: Text(
                 "Description",
                 style: TextStyle(
@@ -57,11 +57,11 @@ class ProjectCard extends StatelessWidget {
             ),
             Container(
               color: Colors.yellow,
-              child: Row(
+              child: const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
+                children: [
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: EdgeInsets.all(8.0),
                     child: Text(
                       "Total",
                       style: TextStyle(
@@ -71,7 +71,7 @@ class ProjectCard extends StatelessWidget {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: EdgeInsets.all(0.0),
                     child: Text(
                       "10",
                       style: TextStyle(

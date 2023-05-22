@@ -1,18 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 Future<void> showCustomDialog(BuildContext context, String title, String text,
-    IconData icon, String buttonText, Function onSubmit) async {
+    String buttonText, Function onSubmit) async {
   await showDialog(
     context: context,
     builder: (context) {
       return AlertDialog(
-        title: Text(title),
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.check_circle, size: 48),
+            Lottie.asset('assets/confirmation.json', width: 100, height: 100),
             const SizedBox(height: 16.0),
-            Text(text),
+            Text(
+              text,
+              style: const TextStyle(
+                fontSize: 18,
+                color: Colors.black54,
+              ),
+            ),
           ],
         ),
         actions: [
@@ -20,7 +34,13 @@ Future<void> showCustomDialog(BuildContext context, String title, String text,
             onPressed: () {
               onSubmit();
             },
-            child: Text(buttonText),
+            child: Text(
+              buttonText,
+              style: const TextStyle(
+                color: Colors.blue,
+                fontSize: 18,
+              ),
+            ),
           ),
         ],
       );
