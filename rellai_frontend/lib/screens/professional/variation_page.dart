@@ -191,9 +191,7 @@ class CustomTextField extends StatelessWidget {
       controller: controller,
       decoration: InputDecoration(
         labelText: labelText,
-        // border: OutlineInputBorder(
-        //   borderRadius: BorderRadius.circular(8.0),
-        // ),
+        border: const OutlineInputBorder(),
       ),
       keyboardType: keyboardType,
       enabled: enabled,

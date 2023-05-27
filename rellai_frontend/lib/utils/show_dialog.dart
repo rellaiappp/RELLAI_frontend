@@ -7,6 +7,7 @@ Future<void> showCustomDialog(BuildContext context, String title, String text,
     context: context,
     builder: (context) {
       return AlertDialog(
+        actionsAlignment: MainAxisAlignment.center,
         title: Text(
           title,
           style: const TextStyle(
@@ -30,7 +31,7 @@ Future<void> showCustomDialog(BuildContext context, String title, String text,
           ],
         ),
         actions: [
-          TextButton(
+          ElevatedButton(
             onPressed: () {
               onSubmit();
             },

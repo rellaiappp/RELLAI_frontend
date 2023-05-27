@@ -8,15 +8,14 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rellai_frontend/screens/old/email.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:rellai_frontend/models/project_user.dart';
 
 class ProjectCRUD {
-  // String varurl = "https://rellai.uc.r.appspot.com";
+  String varurl = "https://rellai.uc.r.appspot.com";
 
-  String varurl = "http://10.0.2.2:8080 ";
+  // String varurl = "http://10.0.2.2:8080 ";
   Future<String?> createProject(Project project) async {
-    await dotenv.load(fileName: ".env");
-    var baseUrl = dotenv.env['BACKENDBASEURL'];
-    baseUrl = varurl;
+    var baseUrl = varurl;
     String url = '$baseUrl/projects'; // Replace with your actual API URL
 
     try {
@@ -46,9 +45,7 @@ class ProjectCRUD {
   }
 
   Future<List<Project>> fetchProjects() async {
-    await dotenv.load(fileName: ".env");
-    var baseUrl = dotenv.env['BACKENDBASEURL'];
-    baseUrl = varurl;
+    var baseUrl = varurl;
     var url = Uri.parse('$baseUrl/projects');
     print(await FirebaseAuth.instance.currentUser!.getIdToken());
     List<Project> projects = [];
@@ -77,9 +74,7 @@ class ProjectCRUD {
   }
 
   Future<Project?> fetchProject(String id) async {
-    await dotenv.load(fileName: ".env");
-    var baseUrl = dotenv.env['BACKENDBASEURL'];
-    baseUrl = varurl;
+    var baseUrl = varurl;
     var url = Uri.parse('$baseUrl/projects/?projectId=$id');
     Project? project;
     try {
@@ -89,6 +84,7 @@ class ProjectCRUD {
             'bearer ${await FirebaseAuth.instance.currentUser!.getIdToken()}',
       };
       final response = await http.get(url, headers: headers);
+      print(response.body);
       if (response.statusCode == 200) {
         Map<String, dynamic> jsonData = jsonDecode(response.body);
         project = Project.fromJson(jsonData);
@@ -103,9 +99,7 @@ class ProjectCRUD {
   }
 
   Future<void> createQuotation(Quotation quote, String projectId) async {
-    await dotenv.load(fileName: ".env");
-    var baseUrl = dotenv.env['BACKENDBASEURL'];
-    baseUrl = varurl;
+    var baseUrl = varurl;
     String url =
         '$baseUrl/projects/quotes/'; // Replace with your actual API URL
 
@@ -130,9 +124,7 @@ class ProjectCRUD {
   }
 
   Future<List<Invite>> getInvitations() async {
-    await dotenv.load(fileName: ".env");
-    var baseUrl = dotenv.env['BACKENDBASEURL'];
-    baseUrl = "https://rellai.uc.r.appspot.com";
+    var baseUrl = varurl;
     List<Invite> pendingInvitations = [];
     final url = Uri.parse('$baseUrl/projects/invites');
     final headers = {
@@ -163,9 +155,7 @@ class ProjectCRUD {
 
   Future<void> createInvitation(
       String projectId, String role, String email) async {
-    await dotenv.load(fileName: ".env");
-    var baseUrl = dotenv.env['BACKENDBASEURL'];
-    baseUrl = varurl;
+    var baseUrl = varurl;
     final url = Uri.parse('$baseUrl/projects/invites');
 
     final headers = {
@@ -199,9 +189,7 @@ class ProjectCRUD {
 
   Future<void> updateInvitation(String inviteID,
       {bool accepted = false, bool rejected = false}) async {
-    await dotenv.load(fileName: ".env");
-    var baseUrl = dotenv.env['BACKENDBASEURL'];
-    baseUrl = varurl;
+    var baseUrl = varurl;
     final url = Uri.parse('$baseUrl/projects/invites/$inviteID');
     final headers = {
       'Content-Type': 'application/json; charset=UTF-8',
@@ -227,9 +215,7 @@ class ProjectCRUD {
 
   Future<void> updateQuote(String quoteId,
       {bool accepted = false, bool rejected = false}) async {
-    await dotenv.load(fileName: ".env");
-    var baseUrl = dotenv.env['BACKENDBASEURL'];
-    baseUrl = varurl;
+    var baseUrl = varurl;
     final url = Uri.parse('$baseUrl/projects/quotes/?quoteId=$quoteId');
     final headers = {
       'Content-Type': 'application/json; charset=UTF-8',
@@ -254,9 +240,7 @@ class ProjectCRUD {
   }
 
   Future<void> createVariation(Variation variation) async {
-    await dotenv.load(fileName: ".env");
-    var baseUrl = dotenv.env['BACKENDBASEURL'];
-    baseUrl = varurl;
+    var baseUrl = varurl;
     final url = Uri.parse('$baseUrl/projects/variations');
 
     final headers = {
@@ -286,9 +270,7 @@ class ProjectCRUD {
 
   Future<void> updateVariation(String variationId,
       {bool accepted = false, bool rejected = false}) async {
-    await dotenv.load(fileName: ".env");
-    var baseUrl = dotenv.env['BACKENDBASEURL'];
-    baseUrl = varurl;
+    var baseUrl = varurl;
     final url =
         Uri.parse('$baseUrl/projects/variations/?variationId=$variationId');
     final headers = {
@@ -314,9 +296,7 @@ class ProjectCRUD {
   }
 
   Future<void> createSal(Sal sal) async {
-    await dotenv.load(fileName: ".env");
-    var baseUrl = dotenv.env['BACKENDBASEURL'];
-    baseUrl = varurl;
+    var baseUrl = varurl;
     final url = Uri.parse('$baseUrl/projects/sals');
 
     final headers = {
@@ -346,9 +326,7 @@ class ProjectCRUD {
 
   Future<void> updateSal(String salId,
       {bool accepted = false, bool rejected = false}) async {
-    await dotenv.load(fileName: ".env");
-    var baseUrl = dotenv.env['BACKENDBASEURL'];
-    baseUrl = varurl;
+    var baseUrl = varurl;
     final url = Uri.parse('$baseUrl/projects/sals/$salId');
     final headers = {
       'Content-Type': 'application/json; charset=UTF-8',
@@ -369,6 +347,66 @@ class ProjectCRUD {
       }
     } catch (error) {
       print('Error updating invitation: $error');
+    }
+  }
+
+  Future<void> updateInvoice(String invoiceId,
+      {bool accepted = false, bool rejected = false, bool paid = false}) async {
+    var baseUrl = varurl;
+    final url = Uri.parse('$baseUrl/projects/invoices/$invoiceId');
+    final headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization':
+          'bearer ${await FirebaseAuth.instance.currentUser!.getIdToken()}'
+    };
+
+    var body = jsonEncode({'accepted': accepted, 'rejected': rejected});
+    if (paid) {
+      body = jsonEncode({'paid': paid});
+    }
+    if (accepted) {
+      body = jsonEncode({'accepted': accepted});
+    }
+    if (rejected) {
+      body = jsonEncode({'rejected': rejected});
+    }
+
+    try {
+      final response = await http.put(url, headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        print('Invoice updated successfully');
+      } else {
+        print('Failed to update invoice. Status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error updating invoice: $error');
+    }
+  }
+
+  Future<List<ProjectUser>> getUsers(String projectId) async {
+    var baseUrl = varurl;
+    print('Request started');
+
+    final headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization':
+          'bearer ${await FirebaseAuth.instance.currentUser!.getIdToken()}'
+    };
+    final response = await http.get(
+      Uri.parse('$baseUrl/projects/users/$projectId'),
+      headers: headers,
+    );
+    print(response);
+
+    if (response.statusCode == 200) {
+      print(json.decode(response.body));
+      Iterable jsonResponse = json.decode(response.body);
+      List<ProjectUser> users =
+          jsonResponse.map((user) => ProjectUser.fromJson(user)).toList();
+      return users;
+    } else {
+      throw Exception('Failed to load users');
     }
   }
 }

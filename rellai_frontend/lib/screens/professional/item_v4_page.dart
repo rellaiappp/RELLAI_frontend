@@ -3,6 +3,7 @@ import 'package:rellai_frontend/models/quote.dart';
 import 'package:rellai_frontend/models/item.dart';
 import 'package:rellai_frontend/models/sub_item.dart';
 import 'package:rellai_frontend/widgets/price_card_bottom.dart';
+import 'package:intl/intl.dart';
 
 class AddItemPage extends StatefulWidget {
   final Item? item;
@@ -38,8 +39,47 @@ class _AddItemPageState extends State<AddItemPage> {
   bool enabled = true;
   bool isAddingNewRow = false;
   List<SubItem> subItems = [];
-  List<String> units = ['m2', 'Unità', 'Corpo'];
+  List<String> units = [
+    'Corpo',
+    'Giorno lavorativo (d)',
+    'Kilogrammo (kg)',
+    'Litro (L)',
+    'Metro cubo (m3)',
+    'Metro lineare (m)',
+    'Metro quadrato (m2)',
+    'Ora lavorativa (h)',
+    'Pezzo (PZ)',
+    'Unità (U)',
+  ];
   String? selectedUnit;
+
+  // Lavorazione dropdown
+  List<String> lavorazioneOptions = [
+    'Assicurazione',
+    'Cartongessi',
+    'Carpenteria',
+    'Certificazioni',
+    'Costi generali',
+    'Demolizioni',
+    'Facciate',
+    'Finiture',
+    'Fondazioni',
+    'Impianto di condizionamento',
+    'Impianto elettrico',
+    'Impianto idraulico',
+    'Impianto di cantiere',
+    'Impermeabilizzazione',
+    'Opere edili',
+    'Pavimentazione',
+    'Permessi',
+    'Progettazione',
+    'Serramenti',
+    'Smaltimento rifiuti',
+    'Test e collaudo',
+    'Tinteggitura',
+    'Trasporti',
+  ];
+  String? selectedLavorazione;
 
   @override
   void initState() {
@@ -47,13 +87,16 @@ class _AddItemPageState extends State<AddItemPage> {
     subItems = widget.item?.subItems ?? [];
     enabled = widget.enabled;
     nameController = TextEditingController(text: widget.item?.name ?? "");
-    descriptionController = TextEditingController();
-    itemNameController = TextEditingController();
-    itemTypeController = TextEditingController();
-    newSubItemDescriptionController = TextEditingController();
-    newSubItemUnitController = TextEditingController();
-    newSubItemNumberController = TextEditingController();
-    newSubItemUnitPriceController = TextEditingController();
+    descriptionController = TextEditingController(text: "");
+    itemNameController = TextEditingController(text: "");
+    itemTypeController = TextEditingController(text: "");
+    newSubItemDescriptionController = TextEditingController(text: "");
+    newSubItemUnitController = TextEditingController(text: "");
+    newSubItemNumberController = TextEditingController(text: "");
+    newSubItemUnitPriceController = TextEditingController(text: "");
+    if (widget.item != null) {
+      nameController.text = widget.item!.name;
+    }
   }
 
   void addSubItem(SubItem item) {
@@ -78,7 +121,7 @@ class _AddItemPageState extends State<AddItemPage> {
               icon: const Icon(Icons.check),
               onPressed: () {
                 Item item = Item(
-                  name: nameController.text,
+                  name: selectedLavorazione ?? '',
                   subItems: subItems,
                 );
                 print(item.toJson());
@@ -92,13 +135,42 @@ class _AddItemPageState extends State<AddItemPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(
-                labelText: 'Nome',
+            if (!enabled || (widget.item != null))
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Nome',
+                  border: OutlineInputBorder(),
+                ),
+                enabled: false,
               ),
-              enabled: enabled,
-            ),
+            const SizedBox(height: 10),
+            if (enabled && (widget.item == null))
+              DropdownButtonFormField<String>(
+                value: selectedLavorazione,
+                decoration: const InputDecoration(
+                  labelText: 'Seleziona una lavorazione',
+                  border: OutlineInputBorder(),
+                ),
+                hint: const Text('Seleziona una lavorazione'),
+                items: lavorazioneOptions.map((value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (newValue) {
+                  setState(() {
+                    selectedLavorazione = newValue;
+                  });
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Per procedere seleziona una lavorazione';
+                  }
+                  return null;
+                },
+              ),
             const SizedBox(height: 10),
             Expanded(
               child: ListView.builder(
@@ -114,91 +186,132 @@ class _AddItemPageState extends State<AddItemPage> {
       floatingActionButton: enabled
           ? FloatingActionButton(
               onPressed: () {
-                showModalBottomSheet<void>(
-                  context: context,
-                  isScrollControlled: true,
-                  builder: (BuildContext context) {
-                    return Padding(
-                      padding: MediaQuery.of(context).viewInsets,
-                      child: Container(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            Text(
-                              'Sottolavorazione',
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                            const SizedBox(height: 20),
-                            TextField(
-                              controller: newSubItemDescriptionController,
-                              decoration: const InputDecoration(
-                                labelText: 'Description',
+                if (selectedLavorazione == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Seleziona una Lavorazione'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                } else {
+                  showModalBottomSheet<void>(
+                    context: context,
+                    isScrollControlled: true,
+                    builder: (BuildContext context) {
+                      return Padding(
+                        padding: MediaQuery.of(context).viewInsets,
+                        child: Container(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              Text(
+                                'Nuova Sottolavorazione',
+                                style:
+                                    Theme.of(context).textTheme.headlineSmall,
                               ),
-                            ),
-                            DropdownButtonFormField<String>(
-                              value: selectedUnit,
-                              hint: const Text('Select unit'),
-                              items: units.map((value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                              onChanged: (newValue) {
-                                setState(() {
-                                  selectedUnit = newValue;
-                                });
-                              },
-                              validator: (value) {
-                                if (value == null) {
-                                  return 'Please select a unit';
-                                }
-                                return null;
-                              },
-                            ),
-                            if (selectedUnit != 'Corpo')
+                              const SizedBox(height: 20),
                               TextField(
-                                controller: newSubItemNumberController,
+                                textCapitalization:
+                                    TextCapitalization.sentences,
+                                controller: newSubItemDescriptionController,
                                 decoration: const InputDecoration(
-                                  labelText: 'N. Unità',
+                                  labelText: 'Descrizione',
+                                  border: OutlineInputBorder(),
                                 ),
                               ),
-                            TextField(
-                              controller: newSubItemUnitPriceController,
-                              decoration: const InputDecoration(
-                                labelText: 'Prezzo',
+                              const SizedBox(height: 10),
+                              DropdownButtonFormField<String>(
+                                decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                ),
+                                value: selectedUnit,
+                                hint: const Text('Seleziona unità'),
+                                items: units.map((value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(value),
+                                  );
+                                }).toList(),
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    selectedUnit = newValue;
+                                    if (newValue == 'Corpo') {
+                                      newSubItemNumberController.text = '1';
+                                    }
+                                  });
+                                },
+                                validator: (value) {
+                                  if (value == null) {
+                                    return 'Seleziona una unità';
+                                  }
+                                  return null;
+                                },
                               ),
-                            ),
-                            const SizedBox(height: 20),
-                            ElevatedButton(
-                              onPressed: () {
-                                SubItem newItem = SubItem(
-                                  description:
-                                      newSubItemDescriptionController.text,
-                                  unitType: selectedUnit ?? 'm2',
-                                  unitNumber: double.tryParse(
-                                          newSubItemNumberController.text) ??
-                                      1.0,
-                                  unitPrice: double.parse(
-                                    newSubItemUnitPriceController.text
-                                        .replaceAll(',', '.')
-                                        .replaceAll("'", ''),
+                              const SizedBox(height: 10),
+                              if (selectedUnit != 'Corpo')
+                                TextField(
+                                    controller: newSubItemNumberController,
+                                    decoration: const InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      labelText: 'N. Unità',
+                                    ),
+                                    keyboardType:
+                                        const TextInputType.numberWithOptions(
+                                      decimal: false,
+                                    )),
+                              if (selectedUnit != 'Corpo')
+                                const SizedBox(height: 10),
+                              TextField(
+                                  controller: newSubItemUnitPriceController,
+                                  decoration: InputDecoration(
+                                    border: const OutlineInputBorder(),
+                                    labelText: (selectedUnit == 'Corpo')
+                                        ? 'Prezzo'
+                                        : 'Prezzo Unitario',
                                   ),
-                                );
-                                setState(() {
-                                  subItems.add(newItem);
-                                });
-                                Navigator.pop(context);
-                              },
-                              child: const Text('Aggiungi'),
-                            ),
-                          ],
+                                  keyboardType:
+                                      const TextInputType.numberWithOptions(
+                                    decimal: true,
+                                  )),
+                              const SizedBox(height: 20),
+                              ElevatedButton(
+                                onPressed: () {
+                                  SubItem newItem = SubItem(
+                                    description:
+                                        newSubItemDescriptionController.text,
+                                    unitType: selectedUnit ?? 'm2',
+                                    unitNumber: double.tryParse(
+                                            newSubItemNumberController.text) ??
+                                        1.0,
+                                    unitPrice: double.parse(
+                                      newSubItemUnitPriceController.text
+                                          .replaceAll(',', '.')
+                                          .replaceAll("'", ''),
+                                    ),
+                                  );
+                                  setState(() {
+                                    subItems.add(newItem);
+                                  });
+                                  newSubItemDescriptionController =
+                                      TextEditingController(text: "");
+                                  newSubItemUnitController =
+                                      TextEditingController(text: "");
+                                  newSubItemNumberController =
+                                      TextEditingController(text: "");
+                                  newSubItemUnitPriceController =
+                                      TextEditingController(text: "");
+                                  Navigator.pop(context);
+                                },
+                                child: const Text('Aggiungi'),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                );
+                      );
+                    },
+                  );
+                }
               },
               child: const Icon(Icons.add),
             )
@@ -228,7 +341,10 @@ class _AddItemPageState extends State<AddItemPage> {
           children: [
             Text('Unità: ${subItem.unitType}'),
             Text('N. Unità: ${subItem.unitNumber}'),
-            Text('Prezzo: € ${subItem.unitPrice}'),
+            Text(
+                'Prezzo: ${NumberFormat.currency(symbol: '€').format(subItem.unitPrice)}'),
+            Text(
+                'Prezzo totale: ${NumberFormat.currency(symbol: '€').format(subItem.unitPrice * subItem.unitNumber)}'),
           ],
         ),
         trailing: widget.enabled

@@ -3,13 +3,12 @@ import 'package:rellai_frontend/models/invite.dart';
 
 class InviteCard extends StatelessWidget {
   final Invite invite;
-  final Function() onAccept;
-  final Function() onReject;
+  final Function() onEnterProject;
 
-  const InviteCard({super.key, 
+  const InviteCard({
+    super.key,
     required this.invite,
-    required this.onAccept,
-    required this.onReject,
+    required this.onEnterProject,
   });
 
   @override
@@ -42,20 +41,14 @@ class InviteCard extends StatelessWidget {
               style: Theme.of(context).textTheme.bodySmall!,
             ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              TextButton(
-                onPressed: onAccept,
-                child: const Text('Accetta'),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Center(
+              child: ElevatedButton(
+                onPressed: onEnterProject,
+                child: Text('Entra nel progetto'),
               ),
-              const SizedBox(width: 8),
-              TextButton(
-                onPressed: onReject,
-                child: const Text('Rifiuta'),
-              ),
-              const SizedBox(width: 8),
-            ],
+            ),
           ),
         ],
       ),

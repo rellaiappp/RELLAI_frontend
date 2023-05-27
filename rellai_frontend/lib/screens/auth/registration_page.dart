@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:rellai_frontend/services/show_dialog.dart';
+import 'package:rellai_frontend/utils/show_dialog.dart';
 import 'package:rellai_frontend/services/api/user.dart';
 import 'package:rellai_frontend/models/user.dart';
 
@@ -120,7 +120,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         ),
         ButtonSegment<Role>(
           value: Role.business,
-          label: Text('Impresa'),
+          label: Text('Azienda'),
           icon: Icon(Icons.business),
         ),
       ],
@@ -137,12 +137,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       TextInputType keyboardType, FormFieldValidator<String> validator,
       {FocusNode? focusNode}) {
     return TextFormField(
+      textCapitalization: TextCapitalization.sentences,
       controller: controller,
       focusNode: focusNode,
       keyboardType: keyboardType,
       decoration: InputDecoration(
         labelText: labelText,
-        //border: OutlineInputBorder(),
+        border: OutlineInputBorder(),
       ),
       validator: validator,
       textInputAction: focusNode == _confirmPasswordFocusNode
@@ -154,7 +155,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         } else if (focusNode == _passwordFocusNode) {
           _confirmPasswordFocusNode.requestFocus();
         } else {
-          _register();
+          _register(context);
         }
       },
     );
@@ -173,7 +174,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       obscureText: !isPasswordVisible,
       decoration: InputDecoration(
         labelText: labelText,
-        //border: OutlineInputBorder(),
+        border: const OutlineInputBorder(),
         suffixIcon: IconButton(
           icon: Icon(
             isPasswordVisible ? Icons.visibility : Icons.visibility_off,
@@ -189,7 +190,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         if (focusNode == _passwordFocusNode) {
           _confirmPasswordFocusNode.requestFocus();
         } else {
-          _register();
+          _register(context);
         }
       },
     );
@@ -204,7 +205,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           borderRadius: BorderRadius.circular(8.0),
         ),
       ),
-      onPressed: _isLoading ? null : _register,
+      onPressed: _isLoading
+          ? null
+          : () {
+              _register(context);
+            },
       child: _isLoading
           ? const CircularProgressIndicator()
           : const Text(
@@ -228,11 +233,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             _showEmailVerificationDialog();
           }
         },
-        child: const Text(
+        child: Text(
           'Hai già un account? Accedi qui.',
           style: TextStyle(
-            color: Colors.blue,
-            decoration: TextDecoration.underline,
+            color: Theme.of(context).primaryColor,
           ),
         ),
       ),
@@ -290,7 +294,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     });
   }
 
-  void _register() async {
+  void _register(context) async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;

@@ -41,13 +41,7 @@ class _ProjectCardState extends State<ProjectCard> {
           onTap: widget.onTap,
           child: Card(
             elevation: _isHovering ? 8.0 : 2.0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.0),
-            ),
             child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8.0),
-              ),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Row(

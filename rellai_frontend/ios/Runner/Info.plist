@@ -38,5 +38,12 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Biometric authentication is used to secure your account.</string>
+	<key>UIKeyboardSupportsTextInput</key>
+	<true/>
+	<key>NSPersistentStoreRemoteChangeNotificationPostOptionKey</key>
+	<string>1</string>
+
 </dict>
 </plist>

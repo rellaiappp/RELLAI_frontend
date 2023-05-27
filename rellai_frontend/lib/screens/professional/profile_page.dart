@@ -91,15 +91,15 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    const SizedBox(height: 16),
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundImage: userProvider.user?.profileImageUrl ==
-                              null
-                          ? const AssetImage('assets/placeholder-profile.jpeg')
-                              as ImageProvider
-                          : NetworkImage(userProvider.user!.profileImageUrl!),
-                    ),
+                    const SizedBox(height: 46),
+                    // CircleAvatar(
+                    //   radius: 50,
+                    //   backgroundImage: userProvider.user?.profileImageUrl ==
+                    //           null
+                    //       ? const AssetImage('assets/placeholder-profile.jpeg')
+                    //           as ImageProvider
+                    //       : NetworkImage(userProvider.user!.profileImageUrl!),
+                    // ),
                     const SizedBox(height: 16),
                     Text(
                       "${userProvider.user?.firstName ?? 'Nome'} ${userProvider.user?.lastName ?? 'Cognome'}",
@@ -119,7 +119,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         color: Colors.grey,
                       ),
                     ),
-                    userProvider.user?.phone != null
+                    (userProvider.user?.phone != null &&
+                            userProvider.user!.phone! != '')
                         ? Column(
                             children: [
                               const SizedBox(height: 8),
@@ -161,41 +162,45 @@ class _ProfilePageState extends State<ProfilePage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          TextField(
-                            controller: businessNameController,
-                            decoration: const InputDecoration(
-                              labelText: 'Nome attività',
+                          if (businessNameController.text != '')
+                            TextField(
+                              controller: businessNameController,
+                              decoration: const InputDecoration(
+                                labelText: 'Nome attività',
+                              ),
+                              maxLines: null,
+                              enabled: false,
                             ),
-                            maxLines: null,
-                            enabled: false,
-                          ),
                           const SizedBox(height: 8),
-                          TextField(
-                            controller: addressController,
-                            decoration: const InputDecoration(
-                              labelText: 'Indirizzo',
+                          if (addressController.text != '')
+                            TextField(
+                              controller: addressController,
+                              decoration: const InputDecoration(
+                                labelText: 'Indirizzo',
+                              ),
+                              maxLines: null,
+                              enabled: false,
                             ),
-                            maxLines: null,
-                            enabled: false,
-                          ),
                           const SizedBox(height: 8),
-                          TextField(
-                            controller: cityController,
-                            decoration: const InputDecoration(
-                              labelText: 'Città',
+                          if (cityController.text != '')
+                            TextField(
+                              controller: cityController,
+                              decoration: const InputDecoration(
+                                labelText: 'Città',
+                              ),
+                              maxLines: null,
+                              enabled: false,
                             ),
-                            maxLines: null,
-                            enabled: false,
-                          ),
                           const SizedBox(height: 8),
-                          TextField(
-                            controller: regionController,
-                            decoration: const InputDecoration(
-                              labelText: 'Provincia',
+                          if (regionController.text != '')
+                            TextField(
+                              controller: regionController,
+                              decoration: const InputDecoration(
+                                labelText: 'Provincia',
+                              ),
+                              maxLines: null,
+                              enabled: false,
                             ),
-                            maxLines: null,
-                            enabled: false,
-                          ),
                           const SizedBox(height: 8),
                         ],
                       ),

@@ -4,7 +4,9 @@ import 'package:rellai_frontend/models/project.dart';
 import 'package:rellai_frontend/services/api/project.dart';
 
 class NewProjectPage extends StatefulWidget {
-  const NewProjectPage({Key? key}) : super(key: key);
+  final Project? project;
+
+  const NewProjectPage({Key? key, this.project}) : super(key: key);
 
   @override
   State<NewProjectPage> createState() => _NewProjectPageState();
@@ -25,11 +27,15 @@ class _NewProjectPageState extends State<NewProjectPage> {
   String _siteRegion = '';
   String _siteZip = '';
 
-  String _clientName = '';
+  String _clientFirstName = '';
+  String _clientLastName = '';
   String _clientEmail = '';
 
   Future<bool> createProject() async {
-    Client client = Client(fullName: _clientName, email: _clientEmail);
+    Client client = Client(
+        firstName: _clientFirstName,
+        lastName: _clientLastName,
+        email: _clientEmail);
     Detail detail =
         Detail(projectType: _projectType, name: _projectName, description: "");
     Address address = Address(
@@ -40,8 +46,10 @@ class _NewProjectPageState extends State<NewProjectPage> {
       zipCode: _siteZip,
     );
     Site site = Site(
+        constructionYear: _constructionYear,
+        surface: double.tryParse(_siteSurface) ?? 0,
         siteType: _siteType,
-        floor: int.parse(_constructionYear),
+        floor: int.parse(_siteFloor),
         address: address);
     Project project = Project(client: client, detail: detail, site: site);
     ProjectCRUD().createProject(project);
@@ -59,7 +67,7 @@ class _NewProjectPageState extends State<NewProjectPage> {
       ),
       body: GestureDetector(
         onTap: () {
-          FocusScope.of(context).unfocus();
+          //FocusScope.of(context).unfocus();
         },
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
@@ -74,11 +82,13 @@ class _NewProjectPageState extends State<NewProjectPage> {
                 ),
                 const SizedBox(height: 16),
                 buildDropdownFormField(
-                  'Tipo di intervento',
+                  'Tipologia di intervento',
                   [
-                    'Sostituzione impianti',
-                    'Adeguamento energetico',
-                    'Altro',
+                    'Costruzioni speciali',
+                    'Edilizia',
+                    'Gestione e organizzazione',
+                    'Impiantistica',
+                    'Involucro edile',
                   ],
                   (value) => _projectType = value!,
                 ),
@@ -97,8 +107,13 @@ class _NewProjectPageState extends State<NewProjectPage> {
                   'Tipologia abitazione',
                   [
                     'Appartamento',
+                    'Attico',
+                    'Casa a schiera',
+                    'Casa prefabbricata',
                     'Casa unifamiliare',
-                    'Altro',
+                    'Condominio',
+                    'Loft',
+                    'Villa',
                   ],
                   (value) => _siteType = value!,
                 ),
@@ -108,7 +123,7 @@ class _NewProjectPageState extends State<NewProjectPage> {
                   (value) => _constructionYear = value!,
                 ),
                 buildFormInputField(
-                  'Superficie',
+                  'Superfice',
                   TextInputType.number,
                   (value) => _siteSurface = value!,
                 ),
@@ -146,14 +161,19 @@ class _NewProjectPageState extends State<NewProjectPage> {
                 buildFormInputField(
                   'Nome',
                   TextInputType.text,
-                  (value) => _clientName = value!,
+                  (value) => _clientFirstName = value!,
+                ),
+                buildFormInputField(
+                  'Cognome',
+                  TextInputType.text,
+                  (value) => _clientLastName = value!,
                 ),
                 buildFormInputField(
                   'Email',
                   TextInputType.emailAddress,
                   (value) => _clientEmail = value!,
                 ),
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
               ],
             ),
           ),
@@ -209,7 +229,7 @@ class _NewProjectPageState extends State<NewProjectPage> {
             );
           }
         },
-        child: Icon(Icons.check),
+        child: const Icon(Icons.check),
       ),
     );
   }
@@ -222,9 +242,10 @@ class _NewProjectPageState extends State<NewProjectPage> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: TextFormField(
+        textCapitalization: TextCapitalization.sentences,
         decoration: InputDecoration(
           labelText: labelText,
-          border: OutlineInputBorder(),
+          border: const OutlineInputBorder(),
         ),
         keyboardType: keyboardType,
         validator: (value) {
@@ -246,6 +267,7 @@ class _NewProjectPageState extends State<NewProjectPage> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: DropdownButtonFormField(
+        isExpanded: true,
         decoration: InputDecoration(
           labelText: labelText,
           border: OutlineInputBorder(),
@@ -253,7 +275,15 @@ class _NewProjectPageState extends State<NewProjectPage> {
         items: items.map((item) {
           return DropdownMenuItem(
             value: item,
-            child: Text(item),
+            child: LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+              return Text(
+                item,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                softWrap: false,
+              );
+            }),
           );
         }).toList(),
         onChanged: onChanged,

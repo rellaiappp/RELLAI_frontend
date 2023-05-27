@@ -145,161 +145,172 @@ class _SALScreenState extends State<SALScreen> {
             ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: _salItems.length,
-        itemBuilder: (BuildContext context, int index) {
-          var salItem = _salItems[index];
+      body: GestureDetector(
+        onTap: FocusScope.of(context).unfocus,
+        child: Stack(children: [
+          ListView.builder(
+            itemCount: _salItems.length,
+            itemBuilder: (BuildContext context, int index) {
+              var salItem = _salItems[index];
 
-          return Card(
-            elevation: 1.0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15.0),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 8.0,
-                            vertical: 5.0,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).hoverColor,
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
-                          child: Text(
-                            salItem['type'] == 'quote'
-                                ? 'Quotazione'
-                                : 'Variazione',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w300,
+              return Card(
+                elevation: 2.0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 8.0,
+                                vertical: 5.0,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).hoverColor,
+                                borderRadius: BorderRadius.circular(20.0),
+                              ),
+                              child: Text(
+                                salItem['type'] == 'quote'
+                                    ? 'Quotazione'
+                                    : 'Variazione',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w300,
+                                ),
+                              ),
                             ),
+                            Text(
+                              salItem['itemName'],
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.black87,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              salItem['subItemName'],
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[700],
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        width: 100,
+                        child: TextFormField(
+                          enabled: widget.enabled,
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 6.0, vertical: 8.0),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15.0),
+                            ),
+                            labelText: '% Compl.',
+                            labelStyle: TextStyle(color: Colors.grey[600]),
+                            suffixIcon: Icon(
+                              Icons.percent,
+                              color: Colors.grey[600],
+                            ),
+                            fillColor: Colors.blue[60],
+                            filled: true,
+                          ),
+                          initialValue: (_salItems[index]
+                                      ['completionPercentage'] ==
+                                  _salItems[index]['completionPercentageAfter'])
+                              ? _salItems[index]['completionPercentage']
+                                  .toString()
+                              : _salItems[index]['completionPercentageAfter']
+                                  .toString(),
+                          keyboardType: TextInputType.number,
+                          onChanged: (value) {
+                            setState(() {
+                              if (double.tryParse(value) != null) {
+                                _salItems[index]['completionPercentageAfter'] =
+                                    double.tryParse(value);
+                              }
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              height: 220,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Divider(),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      children: [
+                        const Expanded(
+                          child: ListTile(
+                            title: Text("Livello completamento richiesto"),
                           ),
                         ),
-                        Text(
-                          salItem['itemName'],
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Colors.black87,
+                        SizedBox(
+                          width: 100,
+                          child: TextFormField(
+                            enabled: widget.enabled,
+                            decoration: InputDecoration(
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 6.0, vertical: 8.0),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(15.0),
+                              ),
+                              labelText: '% Compl.',
+                              labelStyle: TextStyle(color: Colors.grey[600]),
+                              suffixIcon: Icon(
+                                Icons.percent,
+                                color: Colors.grey[600],
+                              ),
+                              fillColor: Colors.blue[60],
+                              filled: true,
+                            ),
+                            initialValue: completionLevel.toString(),
+                            keyboardType: TextInputType.number,
+                            onChanged: (value) {
+                              setState(() {
+                                if (double.tryParse(value) != null) {
+                                  completionLevel =
+                                      double.tryParse(value) ?? 0.0;
+                                }
+                              });
+                            },
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          salItem['subItemName'],
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[700],
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
                   ),
-                  SizedBox(
-                    width: 100,
-                    child: TextFormField(
-                      enabled: widget.enabled,
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(
-                            horizontal: 6.0, vertical: 8.0),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                        labelText: '% Compl.',
-                        labelStyle: TextStyle(color: Colors.grey[600]),
-                        suffixIcon: Icon(
-                          Icons.percent,
-                          color: Colors.grey[600],
-                        ),
-                        fillColor: Colors.blue[60],
-                        filled: true,
-                      ),
-                      initialValue: (_salItems[index]['completionPercentage'] ==
-                              _salItems[index]['completionPercentageAfter'])
-                          ? _salItems[index]['completionPercentage'].toString()
-                          : _salItems[index]['completionPercentageAfter']
-                              .toString(),
-                      keyboardType: TextInputType.number,
-                      onChanged: (value) {
-                        setState(() {
-                          if (double.tryParse(value) != null) {
-                            _salItems[index]['completionPercentageAfter'] =
-                                double.tryParse(value);
-                          }
-                        });
-                      },
-                    ),
-                  ),
                 ],
               ),
             ),
-          );
-        },
+          ),
+        ]),
       ),
-      bottomNavigationBar: Container(
-        height: 220,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Divider(),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  const Expanded(
-                    child: ListTile(
-                      title: Text("Livello completamento richiesto"),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 100,
-                    child: TextFormField(
-                      enabled: widget.enabled,
-                      decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 6.0, vertical: 8.0),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                        labelText: '% Compl.',
-                        labelStyle: TextStyle(color: Colors.grey[600]),
-                        suffixIcon: Icon(
-                          Icons.percent,
-                          color: Colors.grey[600],
-                        ),
-                        fillColor: Colors.blue[60],
-                        filled: true,
-                      ),
-                      initialValue: completionLevel.toString(),
-                      keyboardType: TextInputType.number,
-                      onChanged: (value) {
-                        setState(() {
-                          if (double.tryParse(value) != null) {
-                            completionLevel = double.tryParse(value) ?? 0.0;
-                          }
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            PriceBottomCard(
-              totalPrice: _computeTotal(_salItems),
-              showComplete: false,
-            ),
-          ],
-        ),
+      bottomNavigationBar: PriceBottomCard(
+        totalPrice: _computeTotal(_salItems),
+        showComplete: false,
       ),
     );
   }

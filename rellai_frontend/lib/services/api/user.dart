@@ -5,12 +5,10 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class UserCRUD {
-  // String varurl = "https://rellai.uc.r.appspot.com";
-  String varurl = "http://10.0.2.2:8080 ";
+  String varurl = "https://rellai.uc.r.appspot.com";
+  // String varurl = "http://10.0.2.2:8080 ";
   Future<void> createUser(AppUser user, String aToken) async {
-    await dotenv.load(fileName: ".env");
-    var baseUrl = dotenv.env['BACKENDBASEURL'];
-    baseUrl = varurl;
+    var baseUrl = varurl;
     String url = '$baseUrl/users'; // Inserisci qui l'URL del tuo server
     print({
       'Content-Type': 'application/json',
@@ -31,15 +29,13 @@ class UserCRUD {
   }
 
   Future<void> updateUser(AppUser user) async {
-    await dotenv.load(fileName: ".env");
-    var baseUrl = dotenv.env['BACKENDBASEURL'];
-    baseUrl = varurl;
+    var baseUrl = varurl;
     final url = Uri.parse('$baseUrl/users/'); // Replace with your API's URL
     final body = {
       "address": user.address,
+      "phone": user.phone,
       "profileImageUrl": user.profileImageUrl,
       "businessInfo": user.businessInfo,
-      "authId": user.authId
     };
 
     final response = await http.put(
@@ -60,9 +56,7 @@ class UserCRUD {
   }
 
   Future<void> getUser(String id) async {
-    await dotenv.load(fileName: ".env");
-    var baseUrl = dotenv.env['BACKENDBASEURL'];
-    baseUrl = varurl;
+    var baseUrl = varurl;
 
     final url = Uri.parse('$baseUrl/users/$id'); // Replace with your API's URL
 
@@ -78,9 +72,7 @@ class UserCRUD {
 
   Future<AppUser?> getCurrentUser() async {
     try {
-      await dotenv.load(fileName: ".env");
-      var baseUrl = dotenv.env['BACKENDBASEURL'];
-      baseUrl = varurl;
+      var baseUrl = varurl;
       final url = Uri.parse('$baseUrl/users'); // Replace with your API's URL
       final headers = {
         'Content-Type': 'application/json',

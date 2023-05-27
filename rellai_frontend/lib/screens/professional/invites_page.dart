@@ -43,14 +43,9 @@ class _InvitesPageState extends State<InvitesPage> {
                       final invite = projectProvider.invites![index] as Invite;
                       return InviteCard(
                         invite: invite,
-                        onAccept: () async {
+                        onEnterProject: () async {
                           await ProjectCRUD()
                               .updateInvitation(invite.id, accepted: true);
-                          projectProvider.updateInvites();
-                        },
-                        onReject: () async {
-                          await ProjectCRUD()
-                              .updateInvitation(invite.id, rejected: true);
                           projectProvider.updateInvites();
                         },
                       );

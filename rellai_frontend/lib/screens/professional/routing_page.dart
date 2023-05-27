@@ -45,7 +45,11 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_currentIndex],
+      body: WillPopScope(
+          onWillPop: () async {
+            return false;
+          },
+          child: _screens[_currentIndex]),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.white, // Customize the background color
         selectedItemColor:

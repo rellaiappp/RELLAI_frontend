@@ -3,6 +3,7 @@ import 'package:rellai_frontend/models/quote.dart';
 import 'package:rellai_frontend/models/variation_item.dart';
 import 'package:rellai_frontend/models/variation_sub_item.dart';
 import 'package:rellai_frontend/widgets/price_card_bottom.dart';
+import 'package:intl/intl.dart';
 
 class AddVariationItemPage extends StatefulWidget {
   final VariationItem? item;
@@ -46,8 +47,48 @@ class _AddVariationItemPageState extends State<AddVariationItemPage> {
 
   bool addingRow = true;
 
-  List<String> units = ['m2', 'Unità', 'Corpo'];
+  List<String> lavorazioneOptions = [
+    'Assicurazione',
+    'Cartongessi',
+    'Carpenteria',
+    'Certificazioni',
+    'Costi generali',
+    'Demolizioni',
+    'Facciate',
+    'Finiture',
+    'Fondazioni',
+    'Impianto di condizionamento',
+    'Impianto elettrico',
+    'Impianto idraulico',
+    'Impianto di cantiere',
+    'Impermeabilizzazione',
+    'Opere edili',
+    'Pavimentazione',
+    'Permessi',
+    'Progettazione',
+    'Serramenti',
+    'Smaltimento rifiuti',
+    'Test e collaudo',
+    'Tinteggitura',
+    'Trasporti',
+  ];
+
+  List<String> units = [
+    'Corpo',
+    'Metro quadrato (m2)',
+    'Metro cubo (m3)',
+    'Metro lineare (m)',
+    'Pezzo (PZ)',
+    'Kilogrammo (kg)',
+    'Litro (L)',
+    'Ora lavorativa (h)',
+    'Giorno lavorativo (d)',
+    'Pacchetto (PK)',
+    'Cassa (CS)',
+    'Unità (U)'
+  ];
   String? selectedUnit;
+  String? selectedLavorazione;
 
   // Method to handle adding a new item to the Quote
   void addSubItem(VariationSubItem item) {
@@ -79,12 +120,14 @@ class _AddVariationItemPageState extends State<AddVariationItemPage> {
             IconButton(
               icon: const Icon(Icons.check),
               onPressed: () {
-                VariationItem item = VariationItem(
-                  name: nameController.text,
-                  subItems: subItems,
-                );
-                print(item.toJson());
-                Navigator.pop(context, item);
+                if (selectedLavorazione != null) {
+                  VariationItem item = VariationItem(
+                    name: selectedLavorazione!,
+                    subItems: subItems,
+                  );
+                  print(item.toJson());
+                  Navigator.pop(context, item);
+                }
               },
             ),
         ],
@@ -94,13 +137,42 @@ class _AddVariationItemPageState extends State<AddVariationItemPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(
-                labelText: 'Nome',
+            if (!enabled || (widget.item != null))
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Nome',
+                  border: OutlineInputBorder(),
+                ),
+                enabled: false,
               ),
-              enabled: enabled,
-            ),
+            const SizedBox(height: 10),
+            if (enabled && (widget.item == null))
+              DropdownButtonFormField<String>(
+                value: selectedLavorazione,
+                decoration: const InputDecoration(
+                  labelText: 'Seleziona una lavorazione',
+                  border: OutlineInputBorder(),
+                ),
+                hint: const Text('Seleziona una lavorazione'),
+                items: lavorazioneOptions.map((value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (newValue) {
+                  setState(() {
+                    selectedLavorazione = newValue;
+                  });
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Per procedere seleziona una lavorazione';
+                  }
+                  return null;
+                },
+              ),
             const SizedBox(height: 10),
             Expanded(
               child: ListView.builder(
@@ -127,77 +199,97 @@ class _AddVariationItemPageState extends State<AddVariationItemPage> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                Text(
-                                  'Sottolavorazione',
-                                  style:
-                                      Theme.of(context).textTheme.headlineSmall,
-                                ),
-                                ElevatedButton(
-                                  child: const Text('Aggiungi'),
-                                  onPressed: () {
-                                    VariationSubItem newItem = VariationSubItem(
-                                      description:
-                                          newSubItemDescriptionController.text,
-                                      unitType: selectedUnit ?? "m2",
-                                      unitNumber: double.tryParse(
-                                              newSubItemNumberController
-                                                  .text) ??
-                                          1.0,
-                                      unitPrice: double.parse(
-                                        newSubItemUnitPriceController.text
-                                            .replaceAll(',', '.')
-                                            .replaceAll("'", ''),
-                                      ),
-                                    );
-                                    setState(() {
-                                      subItems.add(newItem);
-                                    });
-                                    Navigator.pop(context);
-                                  },
-                                ),
-                              ],
+                            Text(
+                              'Sottolavorazione',
+                              style: Theme.of(context).textTheme.headline6,
                             ),
                             const SizedBox(height: 20),
                             TextField(
+                              textCapitalization: TextCapitalization.sentences,
                               controller: newSubItemDescriptionController,
                               decoration: const InputDecoration(
-                                labelText: 'Description',
+                                labelText: 'Descrizione',
+                                border: OutlineInputBorder(),
                               ),
                             ),
-                            DropdownButtonFormField(
+                            const SizedBox(height: 10),
+                            DropdownButtonFormField<String>(
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
+                              ),
                               value: selectedUnit,
-                              hint: const Text('Select unit'),
-                              items: units.map((String value) {
+                              hint: const Text('Seleziona unità'),
+                              items: units.map((value) {
                                 return DropdownMenuItem<String>(
                                   value: value,
                                   child: Text(value),
                                 );
                               }).toList(),
                               onChanged: (newValue) {
-                                selectedUnit = newValue;
+                                setState(() {
+                                  setState(() {
+                                    selectedUnit = newValue;
+                                    if (newValue == 'Corpo') {
+                                      newSubItemNumberController.text = '1';
+                                    }
+                                  });
+                                });
                               },
                               validator: (value) {
                                 if (value == null) {
-                                  return 'Please select a unit';
+                                  return 'Seleziona una unità';
                                 }
                                 return null;
                               },
                             ),
-                            if (selectedUnit != "Corpo")
+                            const SizedBox(height: 10),
+                            if (selectedUnit != 'Corpo')
                               TextField(
                                 controller: newSubItemNumberController,
                                 decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
                                   labelText: 'N. Unità',
                                 ),
                               ),
+                            if (selectedUnit != 'Corpo')
+                              const SizedBox(height: 10),
                             TextField(
                               controller: newSubItemUnitPriceController,
                               decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
                                 labelText: 'Prezzo',
                               ),
+                            ),
+                            const SizedBox(height: 20),
+                            ElevatedButton(
+                              onPressed: () {
+                                VariationSubItem newItem = VariationSubItem(
+                                  description:
+                                      newSubItemDescriptionController.text,
+                                  unitType: selectedUnit ?? 'm2',
+                                  unitNumber: double.tryParse(
+                                          newSubItemNumberController.text) ??
+                                      1.0,
+                                  unitPrice: double.parse(
+                                    newSubItemUnitPriceController.text
+                                        .replaceAll(',', '.')
+                                        .replaceAll("'", ''),
+                                  ),
+                                );
+                                setState(() {
+                                  subItems.add(newItem);
+                                });
+                                newSubItemDescriptionController =
+                                    TextEditingController(text: "");
+                                newSubItemUnitController =
+                                    TextEditingController(text: "");
+                                newSubItemNumberController =
+                                    TextEditingController(text: "");
+                                newSubItemUnitPriceController =
+                                    TextEditingController(text: "");
+                                Navigator.pop(context);
+                              },
+                              child: const Text('Aggiungi'),
                             ),
                           ],
                         ),
@@ -214,6 +306,23 @@ class _AddVariationItemPageState extends State<AddVariationItemPage> {
         totalPrice: totalPrice,
       ),
     );
+  }
+
+  void _addItem() {
+    VariationSubItem newItem = VariationSubItem(
+      description: newSubItemDescriptionController.text,
+      unitType: selectedUnit ?? "m2",
+      unitNumber: double.tryParse(newSubItemNumberController.text) ?? 1.0,
+      unitPrice: double.parse(
+        newSubItemUnitPriceController.text
+            .replaceAll(',', '.')
+            .replaceAll("'", ''),
+      ),
+    );
+    setState(() {
+      subItems.add(newItem);
+    });
+    Navigator.pop(context);
   }
 
   double computeTotal(List<VariationSubItem> subItems) {
@@ -242,7 +351,10 @@ class _AddVariationItemPageState extends State<AddVariationItemPage> {
           children: [
             Text('Unità: ${subItem.unitType}'),
             Text('N. Unità: ${subItem.unitNumber}'),
-            Text('Prezzo: € ${subItem.unitPrice}'),
+            Text(
+                'Prezzo: € ${NumberFormat.currency(symbol: '€').format(subItem.unitPrice)}'),
+            Text(
+                'Prezzo totale: ${NumberFormat.currency(symbol: '€').format(subItem.unitPrice * subItem.unitNumber)}'),
           ],
         ),
         trailing: widget.enabled

@@ -8,7 +8,6 @@ class Sal {
   bool rejected;
   List<SalSubItem> items; // List of SubItem objects
   double totalPrice;
-
   Sal(
       {this.id,
       this.name,

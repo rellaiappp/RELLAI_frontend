@@ -65,9 +65,11 @@ class _ProjectsPageState extends State<ProjectsPage> {
                 ),
               ),
       ),
-      floatingActionButton: (userProvider.user?.role != "homeowner")
+      floatingActionButton: (userProvider.user?.role != null &&
+              userProvider.user?.role != "homeowner")
           ? FloatingActionButton.extended(
               onPressed: () {
+                HapticFeedback.heavyImpact(); // T
                 Navigator.push(
                     context,
                     MaterialPageRoute(

@@ -1,6 +1,7 @@
 import 'package:rellai_frontend/models/item.dart';
 import 'package:rellai_frontend/models/variation.dart';
 import 'package:rellai_frontend/models/sal.dart';
+import 'package:rellai_frontend/models/invoice.dart';
 
 class Quotation {
   String? id;
@@ -8,7 +9,9 @@ class Quotation {
   String name;
   String description;
   String projectId;
+  String internalId;
   String? creatorId;
+  String? validity;
   String status;
   bool accepted;
   bool rejected;
@@ -19,6 +22,7 @@ class Quotation {
   List<Item> items;
   List<Variation> variations;
   List<Sal> sals;
+  List<Invoice> invoices;
   // List of Item objects
 
   Quotation({
@@ -27,6 +31,8 @@ class Quotation {
     required this.name,
     required this.description,
     required this.projectId,
+    required this.internalId,
+    required this.validity,
     this.creatorId,
     required this.status,
     this.accepted = false,
@@ -38,6 +44,7 @@ class Quotation {
     this.items = const [],
     this.variations = const [],
     this.sals = const [],
+    this.invoices = const [],
   });
 
   Quotation.fromJson(Map<String, dynamic> json)
@@ -48,6 +55,8 @@ class Quotation {
         projectId = json['projectId'] ?? '',
         creatorId = json['creatorId'] ?? '',
         status = json['status'] ?? '',
+        internalId = json['internalId'] ?? '',
+        validity = json['validity'] ?? '',
         accepted = json['accepted'] ?? false,
         rejected = json['rejected'] ?? false,
         dateCreated =
@@ -69,6 +78,12 @@ class Quotation {
                 .where((item) => item != null)
                 .map((item) => Sal.fromJson(item as Map<String, dynamic>))
                 .toList()
+            : [],
+        invoices = json['invoices'] is List
+            ? (json['invoices'] as List)
+                .where((item) => item != null)
+                .map((item) => Invoice.fromJson(item as Map<String, dynamic>))
+                .toList()
             : [];
 
   Map<String, dynamic> toJson() {
@@ -78,6 +93,8 @@ class Quotation {
       'name': name,
       'description': description,
       'projectId': projectId,
+      'internalId': internalId,
+      'validity': validity,
       'creatorId': creatorId,
       'status': status,
       'accepted': accepted,
@@ -89,6 +106,7 @@ class Quotation {
       'items': items.map((item) => item.toJson()).toList(),
       'variations': variations.map((item) => item.toJson()).toList(),
       'sals': sals.map((item) => item.toJson()).toList(),
+      'invoices': invoices.map((item) => item.toJson()).toList(),
     };
   }
 }

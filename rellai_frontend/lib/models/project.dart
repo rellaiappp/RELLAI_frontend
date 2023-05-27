@@ -73,15 +73,24 @@ class Detail {
 
 class Site {
   String siteType;
-  int floor; // change this to int if floor should be an integer
+  int floor;
+  double surface; // change this to int if floor should be an integer
   Address address;
+  String constructionYear;
 
-  Site({required this.siteType, required this.floor, required this.address});
+  Site(
+      {required this.siteType,
+      required this.floor,
+      required this.surface,
+      required this.address,
+      required this.constructionYear});
 
   factory Site.fromJson(Map<String, dynamic> json) {
     return Site(
       siteType: json['siteType'],
       floor: int.tryParse(json['floor'].toString()) ?? 0,
+      constructionYear: json['constructionYear'],
+      surface: double.tryParse(json['surface'].toString()) ?? 0,
       address: Address.fromJson(json['address']),
     );
   }
@@ -90,24 +99,29 @@ class Site {
     return {
       'siteType': siteType,
       'floor': floor,
+      'surface': surface,
+      'constructionYear': constructionYear,
       'address': address.toJson(),
     };
   }
 }
 
 class Client {
-  String fullName;
+  String firstName;
+  String lastName;
   String email;
 
-  Client({required this.fullName, required this.email});
+  Client(
+      {required this.firstName, required this.lastName, required this.email});
 
   Client.fromJson(Map<String, dynamic> json)
-      : fullName = json['fullName'] ?? '',
+      : firstName = json['firstName'] ?? '',
+        lastName = json['lastName'] ?? '',
         email = json['email'] ?? '';
 
   Map<String, dynamic> toJson() {
     return {
-      'fullName': fullName,
+      'firstName': firstName,
       'email': email,
     };
   }

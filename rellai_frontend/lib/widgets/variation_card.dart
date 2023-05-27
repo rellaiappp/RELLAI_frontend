@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rellai_frontend/models/variation_item.dart';
+import 'package:intl/intl.dart';
 
 class VariationItemCard extends StatelessWidget {
   final VariationItem item;
@@ -26,9 +27,8 @@ class VariationItemCard extends StatelessWidget {
       onTap: onTap,
       child: Card(
         color: cardColor ?? Theme.of(context).cardColor,
-        elevation: 4,
+        elevation: 2,
         margin: const EdgeInsets.symmetric(vertical: 3, horizontal: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -50,7 +50,8 @@ class VariationItemCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '\$${computeItemTotal(item).toStringAsFixed(2)}',
+                    NumberFormat.currency(symbol: '€')
+                        .format(computeItemTotal(item)),
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                 ],

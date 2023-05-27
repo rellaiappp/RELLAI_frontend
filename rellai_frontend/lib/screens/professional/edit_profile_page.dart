@@ -6,8 +6,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rellai_frontend/services/api/user.dart';
-
+import 'package:rellai_frontend/providers/user_provider.dart';
 import 'package:rellai_frontend/models/user.dart';
+import 'package:provider/provider.dart';
 
 class EditProfilePage extends StatefulWidget {
   final AppUser user;
@@ -26,7 +27,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final TextEditingController _mailController = TextEditingController();
   String? _userImageURL;
 
-  void _saveProfile() {
+  void _saveProfile(context) async {
     AppUser updatedUser = widget.user;
     // recupera i dati dai campi di testo e dall'URL dell'immagine
     updatedUser.phone = _phoneNumberController.text;
@@ -45,12 +46,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
     }
     if (_userImageURL != null) updatedUser.profileImageUrl = _userImageURL;
     UserCRUD().updateUser(updatedUser);
-
-    // // chiama la funzione per inviare i dati del profilo al server
-    // ProfileDataService().updateUserProfile(
-    //     phoneNumber, address, imageURL, city, region, businessName);
-
-    // torna alla schermata precedente
+    final UserProvider userProvider =
+        Provider.of<UserProvider>(context, listen: false);
+    await userProvider.updateUser();
+    const snackBar = SnackBar(
+      content: Text('Utente aggiornato con successo!'),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
     Navigator.pop(context);
   }
 
@@ -70,7 +72,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _cityController.text = widget.user.address?.city ?? "";
     _regionController.text = widget.user.address?.region ?? "";
     _addressController.text = widget.user.address?.street ?? "";
-    print(widget.user.role);
   }
 
   @override
@@ -80,7 +81,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
         title: const Text('Modifica profilo'),
         actions: [
           TextButton(
-            onPressed: _saveProfile,
+            onPressed: () {
+              _saveProfile(context);
+            },
             child: const Text(
               'Salva',
             ),
@@ -89,7 +92,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
       ),
       body: GestureDetector(
         onTap: () {
-          // Hide the keyboard when the user taps outside the text field
           FocusScopeNode currentFocus = FocusScope.of(context);
           if (!currentFocus.hasPrimaryFocus) {
             currentFocus.unfocus();
@@ -100,7 +102,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              ImageUploader(setImageURL: _setImageURL),
+              const SizedBox(
+                height: 16,
+              ),
               TextField(
                 controller: _nameController,
                 enabled: false,
@@ -200,12 +204,8 @@ class ProfileDataService {
       dataToUpdate['profile_image_url'] = imageURL;
     }
 
-    users
-        .doc(userId)
-        .update(dataToUpdate)
-        .then((value) => print('Profilo utente aggiornato con successo'))
-        .catchError((error) => print(
-            'Errore durante l\'aggiornamento del profilo utente: $error'));
+    users.doc(userId).update(dataToUpdate).catchError((error) =>
+        print('Errore durante l\'aggiornamento del profilo utente: $error'));
   }
 }
 

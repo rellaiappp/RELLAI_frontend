@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rellai_frontend/models/item.dart';
+import 'package:intl/intl.dart';
 
 class ItemCard extends StatelessWidget {
   final Item item;
@@ -26,9 +27,8 @@ class ItemCard extends StatelessWidget {
       onTap: onTap,
       child: Card(
         color: cardColor ?? Theme.of(context).cardColor,
-        elevation: 4,
-        margin: const EdgeInsets.symmetric(vertical: 3, horizontal: 0),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        elevation: 2,
+        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -66,7 +66,8 @@ class ItemCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '\€${computeItemTotal(item).toStringAsFixed(2)}',
+                        NumberFormat.currency(symbol: '€')
+                            .format(computeItemTotal(item)),
                         style: const TextStyle(
                           fontSize: 19,
                           fontWeight: FontWeight.bold,

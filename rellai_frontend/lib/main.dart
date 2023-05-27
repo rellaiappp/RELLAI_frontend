@@ -58,10 +58,9 @@ class _MyAppState extends State<MyApp>
         ChangeNotifierProvider(create: (_) => UserProvider())
       ],
       child: MaterialApp(
-        title: 'Flutter Demo',
+        title: 'RELLAI',
         theme: ThemeData(
           colorSchemeSeed: const Color.fromRGBO(5, 107, 241, 1),
-          disabledColor: Colors.red,
           useMaterial3: true,
         ),
         home: const LoginPage(),
